@@ -1,0 +1,46 @@
+name: NAFNet-Blind-test
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  test:
+    name: blind-test
+    type: PairedImageDataset
+
+    dataroot_gt: /root/Qtt/Restormer/data/test_sharp
+    dataroot_lq: /root/Qtt/Restormer/data/test_blur
+
+    io_backend:
+      type: disk
+
+network_g:
+  type: NAFNetLocal
+  width: 64
+  enc_blk_nums: [1, 1, 1, 28]
+  middle_blk_num: 1
+  dec_blk_nums: [1, 1, 1, 1]
+
+path:
+  pretrain_network_g: experiments/pretrained_models/NAFNet-blind.pth  # 修改为你的 checkpoint 路径
+  strict_load_g: true
+  resume_state: ~
+
+val:
+  save_img: true
+  grids: false
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+dist_params:
+  backend: nccl
+  port: 29500
