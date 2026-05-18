@@ -8,3 +8,6 @@ logs/
 datasets
 basicsr.egg-info
 fangzhen.py
+*.zip
+*.png
+*.csv
