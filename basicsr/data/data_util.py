@@ -5,6 +5,7 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import cv2
+import os
 import numpy as np
 import torch
 from os import path as osp
@@ -235,8 +236,14 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
     input_key, gt_key = keys
 
     # detect grouped subfolders (e.g., train_blur/001, train_sharp/001)
-    input_children = [p for p in scandir(input_folder)]
-    gt_children = [p for p in scandir(gt_folder)]
+    input_children = sorted([
+        entry.name for entry in os.scandir(input_folder)
+        if entry.is_dir() and not entry.name.startswith('.')
+    ])
+    gt_children = sorted([
+        entry.name for entry in os.scandir(gt_folder)
+        if entry.is_dir() and not entry.name.startswith('.')
+    ])
 
     # helper: natural sort
     import re as _re
@@ -245,7 +252,7 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
 
     paths = []
     # if both contain subdirectories, iterate groups
-    if all([osp.isdir(osp.join(input_folder, c)) for c in input_children]) and all([osp.isdir(osp.join(gt_folder, c)) for c in gt_children]):
+    if input_children and gt_children:
         # find common group names
         groups = sorted(list(set(input_children) & set(gt_children)), key=_natural_sort_key)
         if len(groups) == 0:
@@ -258,14 +265,15 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
             if len(in_files) != len(gt_files):
                 raise AssertionError(f'Group {g} has different file counts: {len(in_files)} vs {len(gt_files)}')
             for idx in range(len(gt_files)):
-                gt_path = gt_files[idx]
-                basename, ext = osp.splitext(osp.basename(gt_path))
-                input_path = in_files[idx]
-                basename_input, ext_input = osp.splitext(osp.basename(input_path))
-                input_name = f'{filename_tmpl.format(basename)}{ext_input}'
+                gt_rel_path = gt_files[idx]
+                input_rel_path = in_files[idx]
+                basename, ext = osp.splitext(osp.basename(gt_rel_path))
+                _, input_ext = osp.splitext(osp.basename(input_rel_path))
+                input_name = f'{filename_tmpl.format(basename)}{input_ext}'
                 input_path = osp.join(in_dir, input_name)
-                assert input_name in in_files, (f'{input_name} is not in {in_dir}.')
-                gt_path = osp.join(gt_dir, gt_path)
+                gt_path = osp.join(gt_dir, gt_rel_path)
+                if not osp.exists(input_path):
+                    raise AssertionError(f'{input_name} is not in {in_dir}.')
                 paths.append(dict([(f'{input_key}_path', input_path), (f'{gt_key}_path', gt_path)]))
         return paths
 
