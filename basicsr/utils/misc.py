@@ -46,8 +46,10 @@ def make_exp_dirs(opt):
     """Make dirs for experiments."""
     # Only create minimal set of folders: models, training_states (under models), and logs.
     if opt['is_train']:
-        # ensure the top-level experiments folder exists; if it exists, archive it
-        mkdir_and_rename(opt['path'].pop('experiments_root'))
+        # ensure the top-level experiments folder exists; do NOT archive/rename it
+        experiments_root = opt['path'].get('experiments_root')
+        if experiments_root:
+            os.makedirs(experiments_root, exist_ok=True)
         # create models folder and its training_states
         models_p = opt['path'].get('models')
         if models_p:
@@ -60,9 +62,10 @@ def make_exp_dirs(opt):
         if log_p:
             os.makedirs(log_p, exist_ok=True)
     else:
-        # for test, create results root and its log/visualization under it
-        results_root = opt['path'].pop('results_root')
-        mkdir_and_rename(results_root)
+        # for test, create results root and its log/visualization under it (no archiving)
+        results_root = opt['path'].get('results_root')
+        if results_root:
+            os.makedirs(results_root, exist_ok=True)
         # create log and visualization as provided
         log_p = opt['path'].get('log')
         if log_p:
