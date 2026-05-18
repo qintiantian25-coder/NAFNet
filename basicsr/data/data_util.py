@@ -234,12 +234,47 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
     input_folder, gt_folder = folders
     input_key, gt_key = keys
 
+    # detect grouped subfolders (e.g., train_blur/001, train_sharp/001)
+    input_children = [p for p in scandir(input_folder)]
+    gt_children = [p for p in scandir(gt_folder)]
+
+    # helper: natural sort
+    import re as _re
+    def _natural_sort_key(s):
+        return [int(text) if text.isdigit() else text.lower() for text in _re.split('([0-9]+)', s)]
+
+    paths = []
+    # if both contain subdirectories, iterate groups
+    if all([osp.isdir(osp.join(input_folder, c)) for c in input_children]) and all([osp.isdir(osp.join(gt_folder, c)) for c in gt_children]):
+        # find common group names
+        groups = sorted(list(set(input_children) & set(gt_children)), key=_natural_sort_key)
+        if len(groups) == 0:
+            raise ValueError('No matching group subfolders found between input and gt folders.')
+        for g in groups:
+            in_dir = osp.join(input_folder, g)
+            gt_dir = osp.join(gt_folder, g)
+            in_files = sorted(list(scandir(in_dir)), key=_natural_sort_key)
+            gt_files = sorted(list(scandir(gt_dir)), key=_natural_sort_key)
+            if len(in_files) != len(gt_files):
+                raise AssertionError(f'Group {g} has different file counts: {len(in_files)} vs {len(gt_files)}')
+            for idx in range(len(gt_files)):
+                gt_path = gt_files[idx]
+                basename, ext = osp.splitext(osp.basename(gt_path))
+                input_path = in_files[idx]
+                basename_input, ext_input = osp.splitext(osp.basename(input_path))
+                input_name = f'{filename_tmpl.format(basename)}{ext_input}'
+                input_path = osp.join(in_dir, input_name)
+                assert input_name in in_files, (f'{input_name} is not in {in_dir}.')
+                gt_path = osp.join(gt_dir, gt_path)
+                paths.append(dict([(f'{input_key}_path', input_path), (f'{gt_key}_path', gt_path)]))
+        return paths
+
+    # fallback: flat folder behavior
     input_paths = list(scandir(input_folder))
     gt_paths = list(scandir(gt_folder))
     assert len(input_paths) == len(gt_paths), (
         f'{input_key} and {gt_key} datasets have different number of images: '
         f'{len(input_paths)}, {len(gt_paths)}.')
-    paths = []
     for idx in range(len(gt_paths)):
         gt_path = gt_paths[idx]
         basename, ext = osp.splitext(osp.basename(gt_path))

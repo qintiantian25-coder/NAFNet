@@ -224,6 +224,30 @@ class BaseModel():
 
         torch.save(save_dict, save_path)
 
+    @master_only
+    def save_best_network(self, net, net_label='net_g', param_key='params'):
+        """Save the network as the best model (overwrite).
+
+        The filename will be `best_model.pt` under opt['path']['models'].
+        """
+        save_filename = 'best_model.pt'
+        save_path = os.path.join(self.opt['path']['models'], save_filename)
+
+        net_ = net if isinstance(net, list) else [net]
+        param_key = param_key if isinstance(param_key, list) else [param_key]
+
+        save_dict = {}
+        for net__, param_key_ in zip(net_, param_key):
+            net_copy = self.get_bare_model(net__)
+            state_dict = net_copy.state_dict()
+            for key, param in state_dict.items():
+                if key.startswith('module.'):
+                    key = key[7:]
+                save_dict.setdefault(param_key_, {})
+                save_dict[param_key_][key] = param.cpu()
+
+        torch.save(save_dict, save_path)
+
     def _print_different_keys_loading(self, crt_net, load_net, strict=True):
         """Print keys with differnet name or different size when loading models.
 

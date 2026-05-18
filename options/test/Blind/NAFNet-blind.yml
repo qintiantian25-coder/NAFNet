@@ -9,8 +9,8 @@ datasets:
     name: blind-test
     type: PairedImageDataset
 
-    dataroot_gt: /root/Qtt/Restormer/data/test_sharp
-    dataroot_lq: /root/Qtt/Restormer/data/test_blur
+    dataroot_gt: /home/student_server/Qtt/NAFNet/data_new/test_sharp
+    dataroot_lq: /home/student_server/Qtt/NAFNet/data_new/test_blur
 
     io_backend:
       type: disk

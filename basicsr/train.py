@@ -36,11 +36,27 @@ def parse_options(is_train=True):
         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
 
+    # optional resume state or checkpoint passed from CLI
+    parser.add_argument('--resume_state', type=str, default=None, help='path to resume state (.state) or checkpoint (.pth)')
+
     parser.add_argument('--input_path', type=str, required=False, help='The path to the input image. For single image inference only.')
     parser.add_argument('--output_path', type=str, required=False, help='The path to the output image. For single image inference only.')
 
     args = parser.parse_args()
     opt = parse(args.opt, is_train=is_train)
+
+    # if CLI provided a resume_state, set it into opt['path'] appropriately
+    if getattr(args, 'resume_state', None):
+        rs = args.resume_state
+        # if it's a .state file (training state), prefer that
+        if rs.endswith('.state') or rs.endswith('.state'):  # redundant but explicit
+            opt['path']['resume_state'] = rs
+        elif rs.endswith('.pth') or rs.endswith('.pt'):
+            # treat as pretrained checkpoint to load weights (no optimizer state)
+            opt['path']['pretrain_network_g'] = rs
+        else:
+            # unknown suffix: put into resume_state
+            opt['path']['resume_state'] = rs
 
     # distributed settings
     if args.launcher == 'none':
@@ -224,6 +240,15 @@ def main():
     data_time, iter_time = time.time(), time.time()
     start_time = time.time()
 
+    # best model tracking
+    best_metric = None
+    best_iter = None
+    monitor_metric = None
+    if opt.get('val') is not None:
+        monitor_metric = opt['val'].get('monitor', 'psnr')
+        # initialize best_metric to -inf so any real metric will be higher
+        best_metric = float('-inf')
+
     # for epoch in range(start_epoch, total_epochs + 1):
     epoch = start_epoch
     while current_iter <= total_iters:
@@ -256,19 +281,42 @@ def main():
                 # print('msg logger .. ', current_iter)
                 msg_logger(log_vars)
 
-            # save models and training states
+            # save models and training states (periodic)
             if current_iter % opt['logger']['save_checkpoint_freq'] == 0:
-                logger.info('Saving models and training states.')
-                model.save(epoch, current_iter)
+                logger.info('Periodic checkpoint event.')
+                save_all = opt['logger'].get('save_all_checkpoints', False)
+                if save_all:
+                    logger.info('Saving models and training states.')
+                    model.save(epoch, current_iter)
+                else:
+                    # only save training state, avoid saving multiple full model files
+                    logger.info('Saving training state only (save_all_checkpoints is False).')
+                    model.save_training_state(epoch, current_iter)
 
-            # validation
-            if opt.get('val') is not None and (current_iter % opt['val']['val_freq'] == 0 or current_iter == 1000):
-            # if opt.get('val') is not None and (current_iter % opt['val']['val_freq'] == 0):
+            # validation triggered by iteration frequency
+            if opt.get('val') is not None and opt['val'].get('val_freq') is not None and (current_iter % opt['val']['val_freq'] == 0 or current_iter == 1000):
                 rgb2bgr = opt['val'].get('rgb2bgr', True)
-                # wheather use uint8 image to compute metrics
+                # whether use uint8 image to compute metrics
                 use_image = opt['val'].get('use_image', True)
-                model.validation(val_loader, current_iter, tb_logger,
+                metrics = model.validation(val_loader, current_iter, tb_logger,
                                  opt['val']['save_img'], rgb2bgr, use_image )
+                # metrics is a dict on master (rank 0) or None on others
+                if metrics and opt.get('val') is not None:
+                    metric_name = opt['val'].get('monitor', 'psnr')
+                    metric_value = metrics.get(metric_name)
+                    if metric_value is not None and metric_value > best_metric and opt['rank'] == 0:
+                        logger.info(f'New best {metric_name}: {metric_value:.6f} (iter {current_iter}), saving best model')
+                        best_metric = metric_value
+                        best_iter = current_iter
+                        # save best model (overwrite)
+                        model.save_best_network(model.net_g, net_label='net_g')
+                        # append best model history
+                        try:
+                            best_log = os.path.join(opt['path']['log'], 'best_model_history.txt')
+                            with open(best_log, 'a', encoding='utf-8') as bf:
+                                bf.write(f"iter={current_iter}, epoch={epoch}, {metric_name}={metric_value:.6f}, saved_to={os.path.join(opt['path']['models'],'best_model.pt')}\n")
+                        except Exception:
+                            pass
                 log_vars = {'epoch': epoch, 'iter': current_iter, 'total_iter': total_iters}
                 log_vars.update({'lrs': model.get_current_learning_rate()})
                 log_vars.update(model.get_current_log())
@@ -280,6 +328,30 @@ def main():
             train_data = prefetcher.next()
         # end of iter
         epoch += 1
+
+        # epoch-based validation (val_every in epochs)
+        if opt.get('val') is not None and opt['val'].get('val_every') is not None:
+            val_every = int(opt['val'].get('val_every'))
+            if epoch % val_every == 0:
+                logger.info(f'Running epoch-based validation at epoch {epoch}')
+                rgb2bgr = opt['val'].get('rgb2bgr', True)
+                use_image = opt['val'].get('use_image', True)
+                metrics = model.validation(val_loader, current_iter, tb_logger,
+                                 opt['val']['save_img'], rgb2bgr, use_image )
+                if metrics and opt['rank'] == 0:
+                    metric_name = opt['val'].get('monitor', 'psnr')
+                    metric_value = metrics.get(metric_name)
+                    if metric_value is not None and metric_value > best_metric:
+                        logger.info(f'New best {metric_name}: {metric_value:.6f} (epoch {epoch}), saving best model')
+                        best_metric = metric_value
+                        best_iter = current_iter
+                        model.save_best_network(model.net_g, net_label='net_g')
+                        try:
+                            best_log = os.path.join(opt['path']['log'], 'best_model_history.txt')
+                            with open(best_log, 'a', encoding='utf-8') as bf:
+                                bf.write(f"epoch={epoch}, iter={current_iter}, {metric_name}={metric_value:.6f}, saved_to={os.path.join(opt['path']['models'],'best_model.pt')}\n")
+                        except Exception:
+                            pass
 
     # end of epoch
 

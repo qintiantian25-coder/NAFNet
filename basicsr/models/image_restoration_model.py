@@ -377,7 +377,9 @@ class ImageRestorationModel(BaseModel):
 
             self._log_validation_metric_values(current_iter, dataloader.dataset.opt['name'],
                                                tb_logger, metrics_dict)
-        return 0.
+            # return metrics for master process
+            return metrics_dict
+        return None
 
     def nondist_validation(self, *args, **kwargs):
         logger = get_root_logger()

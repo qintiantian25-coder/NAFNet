@@ -8,8 +8,8 @@ datasets:
   train:
     name: BlindTrain
     type: PairedImageDataset
-    dataroot_gt: /root/Qtt/Restormer/data/train_sharp
-    dataroot_lq: /root/Qtt/Restormer/data/train_blur
+    dataroot_gt: /home/student_server/Qtt/NAFNet/data_new/train_sharp
+    dataroot_lq: /home/student_server/Qtt/NAFNet/data_new/train_blur
 
     filename_tmpl: '{}'
     io_backend:
@@ -29,8 +29,8 @@ datasets:
   val:
     name: BlindVal
     type: PairedImageDataset
-    dataroot_gt: /root/Qtt/Restormer/data/val_sharp
-    dataroot_lq: /root/Qtt/Restormer/data/val_blur
+    dataroot_gt: /home/student_server/Qtt/NAFNet/data_new/val_sharp
+    dataroot_lq: /home/student_server/Qtt/NAFNet/data_new/val_blur
     io_backend:
       type: disk
 
