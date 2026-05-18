@@ -211,8 +211,9 @@ class TestReport:
 
     def update_metric(self, gt_img, out_img, img_name=None):
         from basicsr.metrics.psnr_ssim import calculate_psnr, calculate_ssim
-        psnr = calculate_psnr(out_img, gt_img, crop_border=self.crop_border, input_order='HW')
-        ssim = calculate_ssim(out_img, gt_img, crop_border=self.crop_border, input_order='HW')
+        # use HWC order (or let the function infer from 2D images); 'HW' is invalid
+        psnr = calculate_psnr(out_img, gt_img, crop_border=self.crop_border, input_order='HWC')
+        ssim = calculate_ssim(out_img, gt_img, crop_border=self.crop_border, input_order='HWC')
         self.total_rgb_psnr.append(float(psnr))
         self.total_ssim.append(float(ssim))
 

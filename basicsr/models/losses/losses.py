@@ -112,5 +112,8 @@ class PSNRLoss(nn.Module):
             pass
         assert len(pred.size()) == 4
 
-        return self.loss_weight * self.scale * torch.log(((pred - target) ** 2).mean(dim=(1, 2, 3)) + 1e-8).mean()
+        # return a positive loss (MSE) instead of a log-scale value which can be
+        # negative. Minimizing MSE is equivalent to maximizing PSNR, and MSE is
+        # easier to interpret in logs.
+        return self.loss_weight * ((pred - target) ** 2).mean()
 

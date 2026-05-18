@@ -71,16 +71,18 @@ def parse(opt_path, is_train=True):
     opt['path']['root'] = osp.abspath(
         osp.join(__file__, osp.pardir, osp.pardir, osp.pardir))
     if is_train:
-        experiments_root = osp.join(opt['path']['root'], 'experiments',
-                        opt['name'])
+        # Use a flat experiments layout: shared models folder and a central logs folder.
+        experiments_root = osp.join(opt['path']['root'], 'experiments')
         opt['path']['experiments_root'] = experiments_root
         # save models in a shared experiments/models folder (user request)
-        opt['path']['models'] = osp.join(opt['path']['root'], 'experiments', 'models')
-        opt['path']['training_states'] = osp.join(experiments_root,
+        opt['path']['models'] = osp.join(experiments_root, 'models')
+        # keep training states under the models folder to avoid extra folders
+        opt['path']['training_states'] = osp.join(opt['path']['models'],
                                                   'training_states')
-        opt['path']['log'] = experiments_root
-        opt['path']['visualization'] = osp.join(experiments_root,
-                                                'visualization')
+        # centralized logs folder for training/validation logs
+        opt['path']['log'] = osp.join(experiments_root, 'logs')
+        # avoid creating an extra visualization folder; reuse logs
+        opt['path']['visualization'] = opt['path']['log']
 
         # change some options for debug mode
         if 'debug' in opt['name']:

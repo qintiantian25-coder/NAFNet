@@ -44,16 +44,32 @@ def mkdir_and_rename(path):
 @master_only
 def make_exp_dirs(opt):
     """Make dirs for experiments."""
-    path_opt = opt['path'].copy()
+    # Only create minimal set of folders: models, training_states (under models), and logs.
     if opt['is_train']:
-        mkdir_and_rename(path_opt.pop('experiments_root'))
+        # ensure the top-level experiments folder exists; if it exists, archive it
+        mkdir_and_rename(opt['path'].pop('experiments_root'))
+        # create models folder and its training_states
+        models_p = opt['path'].get('models')
+        if models_p:
+            os.makedirs(models_p, exist_ok=True)
+            ts = opt['path'].get('training_states')
+            if ts:
+                os.makedirs(ts, exist_ok=True)
+        # create logs folder
+        log_p = opt['path'].get('log')
+        if log_p:
+            os.makedirs(log_p, exist_ok=True)
     else:
-        mkdir_and_rename(path_opt.pop('results_root'))
-    for key, path in path_opt.items():
-        if ('strict_load' not in key) and ('pretrain_network'
-                                           not in key) and ('resume'
-                                                            not in key):
-            os.makedirs(path, exist_ok=True)
+        # for test, create results root and its log/visualization under it
+        results_root = opt['path'].pop('results_root')
+        mkdir_and_rename(results_root)
+        # create log and visualization as provided
+        log_p = opt['path'].get('log')
+        if log_p:
+            os.makedirs(log_p, exist_ok=True)
+        viz = opt['path'].get('visualization')
+        if viz:
+            os.makedirs(viz, exist_ok=True)
 
 
 def scandir(dir_path, suffix=None, recursive=False, full_path=False):
