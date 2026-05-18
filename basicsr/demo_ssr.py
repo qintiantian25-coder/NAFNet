@@ -24,7 +24,7 @@ def parse_options(is_train=True):
         choices=['none', 'pytorch', 'slurm'],
         default='none',
         help='job launcher')
-    parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument('--local_rank', '--local-rank', dest='local_rank', type=int, default=0)
 
     parser.add_argument('--input_l_path', type=str, required=True, help='The path to the input left image. For stereo image inference only.')
     parser.add_argument('--input_r_path', type=str, required=True, help='The path to the input right image. For stereo image inference only.')
