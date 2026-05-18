@@ -154,7 +154,7 @@ def create_train_val_dataloader(opt, logger):
                 f'Number of val images/folders in {dataset_opt["name"]}: '
                 f'{len(val_set)}')
         else:
-            raise ValueError(f'Dataset phase {phase} is not recognized.')
+            logger.info(f'Skip dataset phase {phase} during training.')
 
     return train_loader, train_sampler, val_loader, total_epochs, total_iters
 
