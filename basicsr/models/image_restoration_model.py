@@ -327,17 +327,16 @@ class ImageRestorationModel(BaseModel):
 
             if with_metrics:
                 # calculate metrics
+                # Use image arrays (HWC uint8) for validation metrics to match
+                # tools/test_nafnet_blind.py behavior.
                 opt_metric = deepcopy(self.opt['val']['metrics'])
-                if use_image:
-                    for name, opt_ in opt_metric.items():
-                        metric_type = opt_.pop('type')
-                        self.metric_results[name] += getattr(
-                            metric_module, metric_type)(sr_img, gt_img, **opt_)
-                else:
-                    for name, opt_ in opt_metric.items():
-                        metric_type = opt_.pop('type')
-                        self.metric_results[name] += getattr(
-                            metric_module, metric_type)(visuals['result'], visuals['gt'], **opt_)
+                for name, opt_ in opt_metric.items():
+                    metric_type = opt_.pop('type')
+                    # ensure input ordering matches test runner
+                    if 'input_order' not in opt_:
+                        opt_['input_order'] = 'HWC'
+                    self.metric_results[name] += getattr(
+                        metric_module, metric_type)(sr_img, gt_img, **opt_)
 
             cnt += 1
             if rank == 0:
