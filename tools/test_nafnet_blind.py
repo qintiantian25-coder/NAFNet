@@ -170,6 +170,69 @@ def build_model(device, in_chans=1, width=64, enc_blk_nums=[1,1,1,28],
     )
     return model.to(device)
 
+
+def adapt_state_dict_channels(state, target_in_chans):
+    """Adapt intro/ending layer channels in checkpoint to match target input channels.
+
+    This is useful when testing a grayscale model with a checkpoint trained in RGB.
+    """
+    if not isinstance(state, dict):
+        return state
+
+    adapted = dict(state)
+    adapted_any = False
+
+    # intro.weight: [width, in_chans, k, k]
+    if 'intro.weight' in adapted and isinstance(adapted['intro.weight'], torch.Tensor):
+        w = adapted['intro.weight']
+        if w.ndim == 4 and w.shape[1] != target_in_chans:
+            src_ch = int(w.shape[1])
+            if target_in_chans == 1 and src_ch > 1:
+                adapted['intro.weight'] = w.mean(dim=1, keepdim=True)
+                adapted_any = True
+            elif src_ch == 1 and target_in_chans > 1:
+                adapted['intro.weight'] = w.repeat(1, target_in_chans, 1, 1) / float(target_in_chans)
+                adapted_any = True
+            else:
+                raise RuntimeError(
+                    f'Cannot adapt intro.weight channels from {src_ch} to {target_in_chans}.')
+
+    # ending.weight: [out_ch, width, k, k]
+    if 'ending.weight' in adapted and isinstance(adapted['ending.weight'], torch.Tensor):
+        w = adapted['ending.weight']
+        if w.ndim == 4 and w.shape[0] != target_in_chans:
+            src_ch = int(w.shape[0])
+            if target_in_chans == 1 and src_ch > 1:
+                adapted['ending.weight'] = w.mean(dim=0, keepdim=True)
+                adapted_any = True
+            elif src_ch == 1 and target_in_chans > 1:
+                adapted['ending.weight'] = w.repeat(target_in_chans, 1, 1, 1)
+                adapted_any = True
+            else:
+                raise RuntimeError(
+                    f'Cannot adapt ending.weight channels from {src_ch} to {target_in_chans}.')
+
+    # ending.bias: [out_ch]
+    if 'ending.bias' in adapted and isinstance(adapted['ending.bias'], torch.Tensor):
+        b = adapted['ending.bias']
+        if b.ndim == 1 and b.shape[0] != target_in_chans:
+            src_ch = int(b.shape[0])
+            if target_in_chans == 1 and src_ch > 1:
+                adapted['ending.bias'] = b.mean().view(1)
+                adapted_any = True
+            elif src_ch == 1 and target_in_chans > 1:
+                adapted['ending.bias'] = b.repeat(target_in_chans)
+                adapted_any = True
+            else:
+                raise RuntimeError(
+                    f'Cannot adapt ending.bias channels from {src_ch} to {target_in_chans}.')
+
+    if adapted_any:
+        print(
+            f'Adapted checkpoint channels to in_chans={target_in_chans} for intro/ending layers.')
+
+    return adapted
+
 # ----------------------------------------------------------------------
 # 图像预处理/后处理
 # ----------------------------------------------------------------------
@@ -271,7 +334,11 @@ def main():
         torch.serialization.add_safe_globals([np._core.multiarray.scalar])
         ckpt = torch.load(args.checkpoint, map_location='cpu', weights_only=False)
 
-    state = ckpt.get('params', ckpt)   # 尝试取 'params' 键，否则整个字典视为 state_dict
+    if isinstance(ckpt, dict):
+        # common checkpoints: {'params': ...} or {'model': ...}
+        state = ckpt.get('params', ckpt.get('model', ckpt))
+    else:
+        state = ckpt
     # 去除 'module.' 前缀
     if isinstance(state, dict):
         new_state = {}
@@ -279,6 +346,10 @@ def main():
             new_k = k[7:] if k.startswith('module.') else k
             new_state[new_k] = v
         state = new_state
+
+    # auto-adapt checkpoint channels when 1ch/3ch mismatch occurs on intro/ending layers
+    state = adapt_state_dict_channels(state, target_in_chans=args.in_chans)
+
     model.load_state_dict(state)
     model.eval()
     print(f'Loaded model from {args.checkpoint}')
