@@ -163,7 +163,10 @@ def build_model(device, in_chans=1, width=64, enc_blk_nums=[1,1,1,28],
         width=width,
         enc_blk_nums=enc_blk_nums,
         middle_blk_num=middle_blk_num,
-        dec_blk_nums=dec_blk_nums
+        dec_blk_nums=dec_blk_nums,
+        # NAFNetLocal internally runs a dummy forward in __init__ via convert().
+        # Keep channel count consistent with in_chans to avoid 1ch/3ch mismatch.
+        train_size=(1, in_chans, 256, 256)
     )
     return model.to(device)
 
@@ -319,10 +322,10 @@ def main():
     blind_pix_sum = 0
     per_image_logs = []   # 所有图像的记录
 
-    print(f'===> 开始测试，共 {len(input_files)} 张图像，分为 {len(grouped_inputs)} 组')
+    print(f'===> 开始定量打分，准备比对 {len(input_files)} 张图片...')
     with torch.no_grad():
         for group_name, group_files in grouped_inputs.items():
-            print(f'===> 处理组 {group_name} ({len(group_files)} 张图像) ...')
+            print(f'===> Processing group {group_name} ({len(group_files)} images) ...')
             group_rows = []
             group_pure_dir = os.path.join(save_pure, group_name)
             group_triple_dir = os.path.join(save_triple, group_name)
@@ -335,11 +338,17 @@ def main():
             flash_map = load_flash_map(masks['flash_csv']) if masks['flash_csv'] else {}
 
             if masks['blind_csv'] and blind_coords is not None:
-                print(f"  加载静态盲元: {len(blind_coords)} 个点")
+                print(f"Loaded blind coords for group {group_name} from: {masks['blind_csv']} ({len(blind_coords)} unique points)")
             elif masks['blind_csv']:
-                print(f"  WARN: 盲元 CSV 无效: {masks['blind_csv']}")
+                print(f"WARN: blind coords CSV not loaded for group {group_name}: {masks['blind_csv']}")
+                print('WARN: blind metrics will stay empty until the CSV path is correct and the file has x,y columns.')
+            else:
+                print(f'WARN: no blind coords CSV found for group {group_name}')
+
             if masks['flash_csv'] and len(flash_map) > 0:
-                print(f"  加载闪光盲元: {len(flash_map)} 帧")
+                print(f"Loaded flash coords map for group {group_name} from: {masks['flash_csv']} ({len(flash_map)} frames)")
+            elif masks['flash_csv']:
+                print(f"WARN: flash CSV has no valid frame_name/x/y entries for group {group_name}: {masks['flash_csv']}")
 
             for idx, in_path in enumerate(group_files):
                 name = os.path.basename(in_path)
@@ -348,7 +357,7 @@ def main():
                 # 读取输入灰度图
                 in_img = cv2.imread(in_path, cv2.IMREAD_GRAYSCALE)
                 if in_img is None:
-                    print(f'  WARN: 无法读取 {in_path}')
+                    print('WARN: failed to load', in_path)
                     continue
 
                 # 预处理
@@ -365,7 +374,7 @@ def main():
                 if gt_path and os.path.exists(gt_path):
                     gt_img = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
                     if gt_img is None:
-                        print(f'  WARN: 无法读取 GT {gt_path}')
+                        print('WARN: failed to load gt for', name)
                         # 仍然保存输出图像
                         cv2.imwrite(os.path.join(group_pure_dir, name), out_gray)
                         continue
@@ -460,7 +469,7 @@ def main():
                     cv2.imwrite(os.path.join(group_pure_dir, name), out_gray)
 
                 if (idx + 1) % 10 == 0:
-                    print(f'  已处理 {idx+1}/{len(group_files)}')
+                    print(f'Processed {idx+1}/{len(group_files)} in group {group_name}')
 
             # 保存该组的 CSV
             if len(group_rows) > 0:
@@ -473,7 +482,7 @@ def main():
                     writer = csv.DictWriter(f, fieldnames=keys)
                     writer.writeheader()
                     writer.writerows(group_rows)
-                print(f'  组指标保存至: {group_csv}')
+                print(f'Per-image test metrics saved to: {group_csv}')
 
     # 输出全图平均指标
     report.print_final_result()
@@ -487,7 +496,7 @@ def main():
             writer = csv.DictWriter(f, fieldnames=keys)
             writer.writeheader()
             writer.writerows(per_image_logs)
-        print(f'全局指标保存至: {global_csv}')
+        print(f'Per-image test metrics saved to: {global_csv}')
 
     # 盲元总体统计
     if blind_pix_sum > 0:
@@ -495,17 +504,18 @@ def main():
         blind_mse = blind_sq_sum / blind_pix_sum
         blind_rmse = np.sqrt(blind_mse)
         blind_psnr = 10.0 * np.log10(255.0*255.0 / max(blind_mse, 1e-12))
-        print('\n===> 盲元区域总体指标')
-        print(f'  采样盲元总数: {blind_pix_sum}')
-        print(f'  MAE: {blind_mae:.6f}   RMSE: {blind_rmse:.6f}   PSNR: {blind_psnr:.3f} dB')
+        print('===> Blind-Pixel Focused Metrics')
+        print(f'BlindCount(total sampled): {blind_pix_sum}')
+        print(f'Blind MAE: {blind_mae:.6f} | Blind RMSE: {blind_rmse:.6f} | Blind PSNR: {blind_psnr:.3f}')
         if blind_abs_in_sum > 0:
             blind_mae_in = blind_abs_in_sum / blind_pix_sum
             blind_mse_in = blind_sq_in_sum / blind_pix_sum
             blind_psnr_in = 10.0 * np.log10(255.0*255.0 / max(blind_mse_in, 1e-12))
             gain_abs = blind_mae_in - blind_mae
             gain_pct = 100.0 * gain_abs / (blind_mae_in + 1e-12)
-            print(f'  输入盲元 MAE: {blind_mae_in:.6f}   PSNR: {blind_psnr_in:.3f} dB')
-            print(f'  模型提升: MAE 下降 {gain_abs:.6f} ({gain_pct:.2f}%)')
+            print(f'Input Blind MAE: {blind_mae_in:.6f} | Input Blind PSNR: {blind_psnr_in:.3f} | MAE Gain: {gain_abs:.6f} ({gain_pct:.2f}%)')
+        if len(per_image_logs) > 0:
+            print(f'Blind per-image metrics saved to: {global_csv}')
 
 if __name__ == '__main__':
     main()
