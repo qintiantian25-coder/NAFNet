@@ -170,3 +170,5 @@ basicsr/version.py
 *.swo
 *~
 .DS_Store
+# Archives
+*.rar
