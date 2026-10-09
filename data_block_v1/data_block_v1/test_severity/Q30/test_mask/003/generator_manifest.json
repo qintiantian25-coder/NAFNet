@@ -1,0 +1,65 @@
+{
+  "dataset": "data_block_v1",
+  "generator": "simulation/block_macrocompact_generator.py",
+  "generator_max_elongation": 1.5,
+  "split": "test",
+  "sequence": "003",
+  "seed": 20461014,
+  "split_namespace": {
+    "train": 0,
+    "val": 100000,
+    "test": 200000
+  },
+  "seed_base": 20261011,
+  "n_frames": 47,
+  "image_wh": [
+    640,
+    512
+  ],
+  "blocks_per_sequence": 30,
+  "per_scale_group": {
+    "Block-S": 10,
+    "Block-M": 10,
+    "Block-L": 10
+  },
+  "scale_groups": {
+    "Block-S": [
+      64,
+      168
+    ],
+    "Block-M": [
+      169,
+      440
+    ],
+    "Block-L": [
+      441,
+      900
+    ]
+  },
+  "geometry_constraints": {
+    "max_elongation": 1.5,
+    "alpha_bbox_diag": 2.0,
+    "min_compactness": 0.5,
+    "min_max_depth": 2,
+    "connectivity": 8,
+    "dist_mask_size": 5,
+    "hole_count": 0,
+    "single_cc": true
+  },
+  "radiometric": {
+    "bright_value": 255,
+    "dark": "get_mostly_black_color() (0-15)",
+    "f_dark": [
+      0.3,
+      0.4
+    ],
+    "dark_size_frac": 0.3,
+    "dark_smd_frac": 0.13,
+    "dark_max_frac": 0.12,
+    "rim_dither": 0.18,
+    "corr_len": 3.0,
+    "min_dark_cluster": 2
+  },
+  "cross_frame_consistent": true,
+  "note": "geometry / response labels / gray values fixed across all frames"
+}

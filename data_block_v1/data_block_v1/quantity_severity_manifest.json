@@ -1,0 +1,749 @@
+{
+  "definition": "Q06 ⊂ Q12 ⊂ Q18 ⊂ Q30，每档在每个尺度档内取前 k 个 component",
+  "levels": {
+    "Q06": 2,
+    "Q12": 4,
+    "Q18": 6,
+    "Q30": 10
+  },
+  "per_sequence": {
+    "001": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 1976,
+          "blind_ratio": 0.0060302734375,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "d9029dd812928dcc9cb18938f8e798aa779cebe45820300ebf133599a0f5693d"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 3946,
+          "blind_ratio": 0.012042236328125,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "ed8d2baab6497abaa103816d4a5b2968159600ab48daef95419855b6105d233b"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 6323,
+          "blind_ratio": 0.0192962646484375,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "3b1b7601199d72a2cdf7334157dc2bcd7ee8b4366a9ea50f669a266cf5ac44a3"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 10783,
+          "blind_ratio": 0.0329071044921875,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "1747f0f7dcac16427245b2cc5e3f2e6aacd1f2c04a56ce32bdeab485f5bf8f38"
+        }
+      },
+      "nested": true
+    },
+    "002": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 1886,
+          "blind_ratio": 0.005755615234375,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "2444e67bba9911ad9d166bf0f1b3327568a7ca4a058f67c07af940d8269220bf"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 4066,
+          "blind_ratio": 0.012408447265625,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "7d67c57e7e015ae24f168e4c9339402dd84c549c2e147a405578e7d8d805a653"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 5965,
+          "blind_ratio": 0.0182037353515625,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "c000ed579889c20844603b10ca3890fff3dd355803dc032135b6a1e4eb556cd1"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 10753,
+          "blind_ratio": 0.0328155517578125,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "427b4c82804a6f555aceb9533463915432ad08f9c9ddc370fc2d74bb008709a7"
+        }
+      },
+      "nested": true
+    },
+    "003": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 2143,
+          "blind_ratio": 0.0065399169921875,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "46141c606a88b49667de809adae6b61a72661f97476d79f15138d6605042ccde"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 4232,
+          "blind_ratio": 0.0129150390625,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "8d0e8d419648d70b870be114cb887ce15389a431c8db220d81f40a9b0fe1ea42"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 6244,
+          "blind_ratio": 0.01905517578125,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "10e6972c2ac7b845f0fbde3711d3d81d7e302c4088eb96eff616e4297660ef9c"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 11171,
+          "blind_ratio": 0.0340911865234375,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "299efedfc2f45362cd407c82a3bf6e83358db0c020941ad1e03c4097efc5befe"
+        }
+      },
+      "nested": true
+    },
+    "004": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 2257,
+          "blind_ratio": 0.0068878173828125,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "076460637540be35582be7b9e26febf49ebd92d54362ac02df59d52e5c202fa9"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 4509,
+          "blind_ratio": 0.0137603759765625,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "2e13b19d3b4fb2a3d41fbce41cac89318f8c6b48872b4bc762fcb407adeddab4"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 6793,
+          "blind_ratio": 0.0207305908203125,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "1d4461c13d117338e59841d21a491a0d5eee793a5f4a1ce8405150015499c8ac"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 11182,
+          "blind_ratio": 0.034124755859375,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "2b4c537a90d4378cf52fd9a8d3bc41e23c8dc7bb4ec745ea192e6249ed48f00c"
+        }
+      },
+      "nested": true
+    },
+    "005": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 2475,
+          "blind_ratio": 0.0075531005859375,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "15ba752e45d4ede53548e8883c7c59a6feb4132772cd17cc3658594ebf7aca60"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 4584,
+          "blind_ratio": 0.0139892578125,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "f084451270aae083745ef492376ad458d90472aa5833b10d9c95c377c765349d"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 7036,
+          "blind_ratio": 0.02147216796875,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "6cf77e8e4a7797e218feea39ee6167ec68810763854d5703416bba0c0707dd89"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 10916,
+          "blind_ratio": 0.03331298828125,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "678215f6cc842f3c2583ec714a011acfba416b729cb03e8739441acaa0b20979"
+        }
+      },
+      "nested": true
+    },
+    "006": {
+      "levels": {
+        "Q06": {
+          "n_blocks": 6,
+          "n_blind_pixels": 2488,
+          "blind_ratio": 0.0075927734375,
+          "S_M_L": {
+            "Block-S": 2,
+            "Block-M": 2,
+            "Block-L": 2
+          },
+          "component_ids": [
+            1,
+            2,
+            11,
+            12,
+            21,
+            22
+          ],
+          "mask_sha256": "92777462fdf782bc4706d61b01bf51d3e13bade4ffe2a2f8aa61d0e245b15ff1"
+        },
+        "Q12": {
+          "n_blocks": 12,
+          "n_blind_pixels": 5123,
+          "blind_ratio": 0.0156341552734375,
+          "S_M_L": {
+            "Block-S": 4,
+            "Block-M": 4,
+            "Block-L": 4
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            13,
+            14,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mask_sha256": "81c3cef6ce5e271a6ff58311ce44bf75a8fbb09693d3179d93d42ed812ab1055"
+        },
+        "Q18": {
+          "n_blocks": 18,
+          "n_blind_pixels": 7450,
+          "blind_ratio": 0.022735595703125,
+          "S_M_L": {
+            "Block-S": 6,
+            "Block-M": 6,
+            "Block-L": 6
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "mask_sha256": "1a6fa98ba6fa0b0a12a655ae9f7c4835fb0b672dc3999bc218528168c087299d"
+        },
+        "Q30": {
+          "n_blocks": 30,
+          "n_blind_pixels": 11980,
+          "blind_ratio": 0.03656005859375,
+          "S_M_L": {
+            "Block-S": 10,
+            "Block-M": 10,
+            "Block-L": 10
+          },
+          "component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "mask_sha256": "8e76885dacd4701541b546641aecd8fc20e912c6cfd71715b6f3c99544365790"
+        }
+      },
+      "nested": true
+    }
+  }
+}
